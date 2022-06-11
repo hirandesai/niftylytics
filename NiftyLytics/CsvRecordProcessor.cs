@@ -1,4 +1,5 @@
-﻿using NiftyLytics.alphavantage.Model;
+﻿using AlphaVantage;
+using AlphaVantage.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
