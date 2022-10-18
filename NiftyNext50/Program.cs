@@ -19,8 +19,10 @@ namespace NiftyNext50
 
         private static async Task ProcessCsv()
         {
+            // get the csv from https://archives.nseindia.com/content/indices/ind_niftynext50list.csv
+            // reference page - https://www.nseindia.com/products-services/indices-niftynext50-index
 #if DEBUG
-            var filePath = @"C:\Users\hiran.desai\Downloads\ind_niftynext50list.csv";
+            var filePath = @"C:\Users\desaihi\Downloads\ind_niftynext50list.csv";
 #else
 
             var filePath = GetFilePathFromUser();
@@ -30,6 +32,7 @@ namespace NiftyNext50
             {
                 return;
             }
+
             using (var priceCardStreamWriter = new StreamWriter(Path.Combine(Environment.CurrentDirectory, $"price-card-{Guid.NewGuid()}.csv")))
             using (var priceCardCsvWriter = new CsvWriter(priceCardStreamWriter, CultureInfo.InvariantCulture))
             {
@@ -42,11 +45,10 @@ namespace NiftyNext50
                     {
                         csvReader.Context.RegisterClassMap<CsvReadRecordMap>();
                         var records = csvReader.GetRecords<CsvReadRecord>().ToList();
-                        await recordProcessor.ProcessCSVRecords(records);
+                        await recordProcessor.ProcessCsvRecords(records, true);
                     }
                 }
             }
-            
         }
 
         private static string GetFilePathFromUser()

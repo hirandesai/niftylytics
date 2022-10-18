@@ -1,3 +1,7 @@
 /.vs/NiftyLytics/v16/*.suo
 bin
 obj
+/.vs/NiftyLytics/v17
+/.vs/NiftyLytics/FileContentIndex
+/.vs/NiftyLytics/DesignTimeBuild
+/.vs/ProjectEvaluation

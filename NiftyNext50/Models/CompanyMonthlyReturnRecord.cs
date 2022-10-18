@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NiftyNext50.Models
+﻿namespace NiftyNext50.Models
 {
     public class CompanyMonthlyReturnRecord : CsvReadRecord
     {
@@ -11,7 +9,9 @@ namespace NiftyNext50.Models
             base.Symbol = record.Symbol;
         }
         public decimal Close { get; set; }
+
         public decimal Open { get; set; }
+        
         public decimal Return
         {
             get
@@ -23,7 +23,9 @@ namespace NiftyNext50.Models
                 return (Close - Open) / Open;
             }
         }
+        
         public int Year { get; set; }
+        
         public int Month { get; set; }
 
     }
