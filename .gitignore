@@ -1,3 +1,4 @@
 /.vs/NiftyLytics/v16/*.suo
 bin
 obj
+/.vs
