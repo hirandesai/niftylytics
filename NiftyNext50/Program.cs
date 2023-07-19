@@ -22,7 +22,7 @@ namespace NiftyNext50
             // get the csv from https://archives.nseindia.com/content/indices/ind_niftynext50list.csv
             // reference page - https://www.nseindia.com/products-services/indices-niftynext50-index
 #if DEBUG
-            var filePath = @"C:\Users\desaihi\Downloads\ind_niftynext50list.csv";
+            var filePath = @"C:\Users\desaihi\Downloads\ind_nifty500list.csv";
 #else
 
             var filePath = GetFilePathFromUser();
@@ -32,11 +32,12 @@ namespace NiftyNext50
             {
                 return;
             }
-
-            using (var priceCardStreamWriter = new StreamWriter(Path.Combine(Environment.CurrentDirectory, $"price-card-{Guid.NewGuid()}.csv")))
+            var investmentDetaiilsFileName = $"investment-details-{Guid.NewGuid()}.csv";
+            var priceCardFileName = $"price-card-{Guid.NewGuid()}.csv";
+            using (var priceCardStreamWriter = new StreamWriter(Path.Combine(Environment.CurrentDirectory, priceCardFileName)))
             using (var priceCardCsvWriter = new CsvWriter(priceCardStreamWriter, CultureInfo.InvariantCulture))
             {
-                using (var investmentDetailStreamWriter = new StreamWriter(Path.Combine(Environment.CurrentDirectory, $"investment-details-{Guid.NewGuid()}.csv")))
+                using (var investmentDetailStreamWriter = new StreamWriter(Path.Combine(Environment.CurrentDirectory, investmentDetaiilsFileName)))
                 using (var investmentDetailCsvWriter = new CsvWriter(investmentDetailStreamWriter, CultureInfo.InvariantCulture))
                 {
                     var recordProcessor = new CsvRecordProcessor(new AlphaVantageClient("XICHYWYADQ0KKG4G"), priceCardCsvWriter, investmentDetailCsvWriter);
@@ -45,10 +46,18 @@ namespace NiftyNext50
                     {
                         csvReader.Context.RegisterClassMap<CsvReadRecordMap>();
                         var records = csvReader.GetRecords<CsvReadRecord>().ToList();
-                        await recordProcessor.ProcessCsvRecords(records, true);
+
+                        // Keep `considerSell` to true if you want to get sell recommendation. Keeping it to false will only give you
+                        // purchase recommendations.
+                        // Keep `shouldSellEveryThingToday` to false if you don't want to sell everything which was purchase previously.
+                        // Keep `shouldSellEveryThingToday` to true if you want to sell everything.  Ideally this should be done
+                        // when calculating the returns on specific day.
+                        await recordProcessor.ProcessCsvRecords(records, considerSell: true, shouldSellEveryThingToday: false);
                     }
                 }
             }
+            Console.WriteLine($"Price card file generated successfully :: {priceCardFileName}");
+            Console.WriteLine($"Investment file generated successfully :: {investmentDetaiilsFileName}");
         }
 
         private static string GetFilePathFromUser()

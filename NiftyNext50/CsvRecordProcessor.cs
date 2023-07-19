@@ -23,7 +23,7 @@ namespace NiftyNext50
             _investmentDetailsWriter = investmentDetailsWriter;
         }
 
-        public async Task ProcessCsvRecords(IList<CsvReadRecord> csvRecords, bool considerSell = false)
+        public async Task ProcessCsvRecords(IList<CsvReadRecord> csvRecords, bool considerSell = false, bool shouldSellEveryThingToday = false)
         {
             if (!csvRecords.Any())
             {
@@ -42,7 +42,7 @@ namespace NiftyNext50
                 await ProcessEachRecord(processedRecords, record);
             }
             WritePriceCardData(processedRecords);
-            ProcessInvestmentResult(processedRecords, considerSell);
+            ProcessInvestmentResult(processedRecords, considerSell, shouldSellEveryThingToday);
         }
 
         private async Task ProcessEachRecord(List<CompanyMonthlyReturnRecord> processedRecords, CsvReadRecord record)
@@ -131,7 +131,7 @@ namespace NiftyNext50
         /// <param name="processedRecords">Alphavintage stock market data</param>
         /// <param name="considerSell">If false, the analaysis will be done only for purchase. If true, the analysis will be done for sell
         /// also such that the stock is in bottom 3 (as per their return in the previous month then it will be sold)</param>
-        private void ProcessInvestmentResult(List<CompanyMonthlyReturnRecord> processedRecords, bool considerSell = false)
+        private void ProcessInvestmentResult(List<CompanyMonthlyReturnRecord> processedRecords, bool considerSell = false, bool shouldSellEveryThingToday = false)
         {
             var investmentResult = new List<CsvWriteRecord>();
             var allPreviousInvestments = new List<CsvWriteRecord>();
@@ -145,7 +145,12 @@ namespace NiftyNext50
                     ProcessStocksForDisinvestment(month, investmentResult);
                 }
             }
-            ProcessStocksForFinalSaleReturn(processedRecords, investmentResult);
+
+            if (shouldSellEveryThingToday)
+            {
+                ProcessStocksForFinalSaleReturn(processedRecords, investmentResult);
+            }
+
             _investmentDetailsWriter.WriteRecords(investmentResult);
         }
 
@@ -230,7 +235,7 @@ namespace NiftyNext50
             }
 
             foreach (var stock in investmentResult
-                                        .Where(q => q.Symbol == stockToDisinvest.Symbol 
+                                        .Where(q => q.Symbol == stockToDisinvest.Symbol
                                                     && q.RemainingQty > 0))
             {
                 stock.SellDate = new DateTime(year, month, 1).AddMonths(1);
